@@ -1,0 +1,455 @@
+---
+title: "HW2 - EDA with R - Statistics and Plotting"
+author: "Preksha Gopalakrishna"
+date: "September 29, 2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Step 1 - Familiarize yourself with the data and the assignment
+
+In this assignment you'll do some exploratory data analysis
+with R on a dataset of housing prices. The version of
+this data that we'll be using is based on a Kaggle dataset -
+https://www.kaggle.com/harlfoxem/housesalesprediction. I've made 
+some changes and you can find a data dictionary in the same
+folder as this file.
+
+As we did in the R related sessions, you'll be editing an R Markdown document to
+do some analysis as well as to document the
+steps you did (and answer some questions I'll throw at you).
+
+You'll notice a few "Hacker Extra" tasks
+thrown in. These are for those of you who want to go a little above and beyond
+and attempt some more challenging tasks. And, feel free to do a some free form
+Hacker Extra style work yourself - in other words, do something beyond what
+was asked. You'll learn more.
+
+## Step 2 - Create a new R Markdown document based on this document
+
+Save this file as a new R Markdown document and name it **hw2_eda_[your last name].Rmd**. Mine would
+be called **hw2_eda_isken.Rmd**. Save it into the same folder as this file. 
+
+This will be your working directory. 
+
+Create a new R Project based on this working directory.
+
+## Step 3 - Explore data folder
+
+Inside of the main project folder you'll find the data files for this assignment in a subfolder called `data/`.
+
+- **kc_house_data_original.csv**
+- **kc_house_data.Rdata**
+
+
+The first file is from the Kaggle site for this dataset. I made some changes and created the Rdata file which contains the dataframe that you'll be using for your analysis.
+
+
+You might want to use shell commands or a text editor like Geany to snoop the csv file a bit.
+
+
+## Step 4 - Complete the following R tasks and answer questions
+
+Now you'll need to complete the following tasks in R. Just like we did in the R sessions, you should
+use a combination of markdown text (be concise, no need to write tons of text) 
+to explain what you are doing and R code chunks to actually do it.
+When you are done, use the "Knit" button to generate an HTML file from your R Markdown.
+
+Note that if you have errors in your R code, **knitr** will stop at the error
+and won't create an html file. Sooo, you should comment out R code that has
+errors and write a little comment stating that it's an error and a possible explanation for the error. Of course, try to fix the errors. Keep doing this
+until you successfully knit an html file based on your R Markdown document.
+You'll be submitting both the html file as well as the Rmd file.
+
+You'll notice that I've left some empty code chunks
+as well as some partially filled in code chunks. Of course, feel free to
+add more code chunks as needed.
+
+Let's load a few libraries we'll need:
+
+```{r}
+library(ggplot2)
+```
+
+
+### Problem 1 - Load the Rdata file
+
+Let's load the data from the Rdata file.
+
+```{r load_data}
+load("data/kc_house_data.Rdata")
+
+```
+
+
+* What does each row represent?
+
+> Each row represents a house with the columns representing information about the house.
+
+Check the structure of the data.frame using `str` and use the `summary` function to begin exploring the data. 
+
+
+```{r str_summary}
+
+str(kc_house_data)
+summary(kc_house_data)
+```
+
+* Are there any NA values? 
+
+> There are nO NA or Missing values
+
+
+**Unless otherwise specified, you should use the ggplot2 package for all of the following plots.**
+
+### Problem 2 - Basic plots
+
+Create a histogram for `price` and for `sqft_living`.
+
+In addition, compute and display the following statistics for price and for sqft_living:
+
+* mean and median
+* standard deviation
+* min, max and range
+* 95th and 99th percentile
+* IQR
+* coefficient of variation
+
+There are few different ways to print out a string that contains some literal text along with the value of some variable. For example, let's compute the mean of `price` and store it in a variable.
+
+```{r}
+price_mean <- mean(kc_house_data$price)
+price_mean
+```
+
+If I wanted to create a little message such as "Mean price = 54088.1", I could use a few different approaches. An old standby is the R `paste()` function.
+
+```{r}
+paste("Mean price =", price_mean)
+```
+
+A few things to note:
+
+* by default, `paste` will concatenate the list of arguments AND put a space between them (see help(paste) to control the delimiter)
+* the value prints in a default format
+
+Another approach is to use the venerable `sprintf()` function, which is actually based on "C-style printing" from the C language. A nice intro to this is at https://www.gastonsanchez.com/r4strings/c-style-formatting.html.
+
+```{r}
+sprintf("Mean price = %.2f", price_mean)
+```
+
+```{r summary_stats}
+#stats for Price
+
+price_mean <- mean(kc_house_data$price)
+sprintf("Mean price = %.2f", price_mean)
+
+price_median <- median(kc_house_data$price)
+sprintf("Median price = %.2f", price_median)
+
+price_min <- min(kc_house_data$price)
+sprintf("Min price = %.2f", price_min)
+
+price_max <- max(kc_house_data$price)
+sprintf("Max price = %.2f", price_max)
+
+price_range <- (max(kc_house_data$price) - min(kc_house_data$price))
+sprintf("Price Range = %.2f", price_range)
+
+price_95thpercentile <- quantile(kc_house_data$price,0.95)
+sprintf("Price - 95th percentile = %.2f", price_95thpercentile)
+
+price_99thpercentile <- quantile(kc_house_data$price,0.99)
+sprintf("Price - 99th percentile = %.2f", price_99thpercentile)
+
+price_IQR <- quantile(kc_house_data$price,0.75) - quantile(kc_house_data$price,0.25)
+sprintf("Price - IQR = %.2f", price_IQR)
+
+price_cv <- sd(kc_house_data$price) / mean (kc_house_data$price)
+sprintf("Price - coefficient of variation = %.2f", price_cv)
+
+#stats for sqft_living
+
+sqft_living_mean <- mean(kc_house_data$sqft_living)
+sprintf("Mean sqft_living = %.2f", sqft_living_mean)
+
+sqft_living_median <- median(kc_house_data$sqft_living)
+sprintf("Median sqft_living = %.2f", sqft_living_median)
+
+sqft_living_min <- min(kc_house_data$sqft_living)
+sprintf("Min sqft_living = %.2f", sqft_living_min)
+
+sqft_living_max <- max(kc_house_data$sqft_living)
+sprintf("Max sqft_living = %.2f", sqft_living_max)
+
+sqft_living_range <- (max(kc_house_data$sqft_living) - min(kc_house_data$sqft_living))
+sprintf("sqft_living Range = %.2f", sqft_living_range)
+
+sqft_living_95thpercentile <- quantile(kc_house_data$sqft_living,0.95)
+sprintf("sqft_living - 95th percentile = %.2f", sqft_living_95thpercentile)
+
+sqft_living_99thpercentile <- quantile(kc_house_data$sqft_living,0.99)
+sprintf("sqft_living - 99th percentile = %.2f", sqft_living_99thpercentile)
+
+sqft_living_IQR <- quantile(kc_house_data$sqft_living,0.75) - quantile(kc_house_data$sqft_living,0.25)
+sprintf("sqft_living - IQR = %.2f", sqft_living_IQR)
+
+sqft_living_cv <- sd(kc_house_data$sqft_living) / mean (kc_house_data$sqft_living)
+sprintf("sqft_living - coefficient of variation = %.2f", sqft_living_cv)
+
+
+```
+
+
+```{r histos}
+
+
+ggplot(data = kc_house_data) +
+    geom_histogram(mapping = aes(x=price), fill="#FF6666")
+
+ggplot(data = kc_house_data) +
+    geom_histogram(mapping = aes(x=sqft_living), fill="#FF6666")
+
+
+```
+
+
+
+Write a short paragraph describing the distribution of of these two variables.
+
+> Looking at the price histogram, we can see that more number of houses with lesser prices exist. It has a peak that is towards the left and it tapers towards the right side of the graph. The mode is closer to the left of the graph.
+> Looking at the sqft_living histogram, we can see that more number of houses with lesser sqft are more. It has a peak that is towards the left and it tapers towards the right side of the graph. The mode is closer to the left of the graph.
+
+Repeat the histogram for `price` but make the following style changes to the plot.
+
+* Add an approprate graph title 
+* Change y-axis label to "Number of houses"
+* Change x-axis label to "Selling price"
+* Change the colors of the bars to something other than the default
+
+```{r histo_stylechanges}
+
+ggplot(data = kc_house_data) +
+    geom_histogram(mapping = aes(x=price), fill="#FF6666", colour="black") + 
+    xlab("Selling price") + 
+    ylab("Number of houses") +
+    ggtitle("Selling prices of houses")
+    
+    
+```
+
+
+
+Now create a set of histograms for `price` in which you facet by condition
+
+```{r histos_price}
+
+ggplot(kc_house_data) +
+  geom_histogram(aes(x=price), fill="#FF6666") +
+  facet_wrap(~condition)
+
+```
+
+
+Since the number of houses varies by `condition`, create a new version of the plot above but modify so that the y-axis shows frequency percentages instead of
+counts. Hint: `..density..`
+
+```{r histos_condition_density}
+
+ggplot(kc_house_data, aes(x=price)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="#9999CC") +
+  facet_wrap(~condition)
+
+```
+
+
+
+Now create boxplots and violin plots for the same two variables - `price` and `sqft_living`. However, you'll
+see that for both of these plot types, ggplot wants an `x` aesthetic to act as a grouping variable. Use the `condition` field as your `x` aesthetic. Note anything of interest revealed by these plots.
+
+```{r box_violin}
+# Boxplots and violin plots
+
+ggplot(kc_house_data) +
+  geom_boxplot(aes(x=condition, y=price), colour="black", fill="#9999CC")
+  
+ggplot(kc_house_data) +
+  geom_boxplot(aes(x=condition, y=sqft_living), colour="black", fill="#9999CC")
+
+
+ggplot(kc_house_data) +
+  geom_violin(aes(x=condition, y=price), colour="black", fill="#9999CC")
+  
+ggplot(kc_house_data) +
+  geom_violin(aes(x=condition, y=sqft_living), colour="black", fill="#9999CC")
+
+  
+```
+
+
+> In the boxplot with price and condition, we can see a lot of outliers in condition =3 and 4.The Interquartile range is between 0e+00 and 1e+06 prices. The median is closer to the bottom and hence it is right skewed.In the boxplot with sqft_living and condition, we can see a lot of outliers in condition =3 and 4 again.The Interquartile range is between 0 and 4000 sqft. We can say that 75% of the data exists for sqft_living less than 3000. The median is closer to the bottom and hence it is right skewed.
+> In the vilion plot for price and condition we can see that the thicker part or elongated the width, in condition 2 shows that there are higher frequency of prices for condition 2. In the next plot, we can see that the density in condition 2 for sqft_living has thicker part, which means that in that section it has higher frequency
+
+Repeat the histogram of `sqft_living` but only for houses with a `condition` equal to 3. Do NOT use
+dplyr to do the filtering - instead, use boolean indexing (see intro to dataframes Rmd file). 
+
+**HACKER EXTRA:** In addition, overlay a kernel density plot on top of the histogram.
+
+```{r histo_cond3}
+#histogram
+g_hist <- ggplot(kc_house_data[kc_house_data$condition == 3, ]) +
+    geom_histogram(aes(x=sqft_living,  y=..density..), colour="black", fill="white") 
+  
+g_hist
+
+#density plot
+g_histdens <- g_hist +
+   geom_density(aes(x=sqft_living), alpha=.2, fill="#FF6666")
+
+g_histdens
+
+
+```
+
+
+Create boxplots and/or violin plots showing how prices compare with respect to whether or not the house is a waterfront property and how prices compare to the number of bedrooms.
+
+
+```{r boxplots}
+
+
+ggplot(kc_house_data) +
+  geom_boxplot(aes(x=waterfront, y=price), colour="black", fill="#9999CC") 
+
+ggplot(kc_house_data) +
+  geom_boxplot(aes(x="label", y=price), colour="black", fill="#9999CC") +
+  facet_wrap(~bedrooms)
+  
+
+```
+
+> The prices of the houses with waterfront seems to be higher,the 75th percentile for waterfront=1 is higher when comapred to 75th percentile fro waterfront = 0. There are are a lot of outliers for no waterfronts.
+> The prices of the bedrooms = 33 seems to be higher, they are more spread out. Less outliers as the number of bedrooms increases. More outliers for bedroom = 10
+
+
+
+### Problem 3 - Basic bar chart
+
+Create a bar chart showing the number of houses by grade. 
+
+```{r bar_grade}
+
+ggplot(kc_house_data) + geom_bar(aes(x=grade), colour="black", fill="#9999CC")
+
+```
+
+
+### Problem 4 - Basic scatter plots
+
+Create a scatter plot of prices vs sqft_living.
+
+```{r xy_price_sqft}
+
+ggplot(kc_house_data) + 
+  geom_point(aes(x=price, y=sqft_living)) 
+  
+
+
+
+```
+
+Create a modified version of the above scatter plot in which:
+
+* only houses less than 3000 square feet are included,
+* the point color is mapped to condition 
+
+```{r xy_price_sqft_condition}
+
+ggplot(kc_house_data[kc_house_data$sqft_living<3000, ]) + 
+  geom_point(aes(x=price, y=sqft_living, color=(condition)))
+
+```
+
+
+Modify the above plot to facet by `condition` to make it easier
+to interpret.
+
+```{r xy_price_sqft_condition2}
+ggplot(kc_house_data[kc_house_data$sqft_living<3000, ]) + 
+  geom_point(aes(x=price, y=sqft_living, color=(condition))) +
+  facet_wrap(~condition)
+
+```
+
+
+> We can a lot of values in condition 3 , 4 and 5
+>
+
+Make one more scatter plot involving `price` and `sqft_living`. But, figure out a way to either change the axis scales or 
+the plotted data itself to use a base 10 logarithmic scale (or transform).
+Write a short paragraph on why one might want to use a log scale or log
+transform of data when plotting.
+
+```{r scatter_log_log}
+ggplot(kc_house_data[kc_house_data$sqft_living<3000, ]) + 
+  geom_point(aes(x=price, y=sqft_living, color=(condition))) +
+  scale_x_log10() +
+  facet_wrap(~condition)
+```
+
+
+### Problem 5 - correlations
+
+Create a correlation matrix and a correlation plot (using corrplot library) which includes the following variables:
+
+* price (col 3)
+* bedrooms (col 4)
+* bathrooms (col 5)
+* sqft_living (col 6)
+* sqft_lot (col 7)
+* floors (col 8)
+* sqft_above (col 13)
+* sqft_basement (col 14)
+* sqft_living15 (col 20)
+* sqft_lot15 (col 21)
+* age (col 22)
+
+```{r correlation_matrix}
+cor_mat <- cor(kc_house_data[,c(3:8,13:14,20:22)])
+cor_mat
+```
+
+```{r correlation_plot}
+library(corrplot)
+corrplot(cor_mat, method="circle")
+```
+
+
+> The diagnol represents the correlation with itself. The darker blue represents correlations with higher or positive correlation and the darker reds indicate the variables are related negatively
+
+
+### Problem 6 - automated EDA
+
+There are a number of packages that try to help automate the process of initial 
+EDA of a dataframe. I want you to try out the skimr package. If the package
+isn't already installed, just install it. Run the `skim()` function on `kc_house_data` and then write a paragraph describing the types of outputs you get from skimr.
+
+```{r lib_skimr}
+library(skimr)
+```
+
+```{r skim}
+# Use skim() function on kc_house_data
+skim(kc_house_data)
+```
+
+
+## Deliverables
+
+Make sure you knit your Rmd file. IMPORTANT: You might notice that there's a file with the same base name as your file and with a .nb.html extension. The "nb" stands for "notebook" and that file is created on the fly as you are working in your notebook. DO NOT SUBMIT THAT FILE. YOU MUST DO A "knit to html" from the toolbar which will generate a file with just the .html extension. As discussed earlier, if you have errors, your document won't knit. Comment out error lines and put a comment in saying that you couldn't get the code chunk to work. After your file is knitted into an html file, simply create a compressed archive (either tar.gz or .zip) of your project folder and upload the compressed archive file into Moodle.
